@@ -11,15 +11,15 @@ multi_intact(
   prior_fun = linear,
   t = 0.05,
   D = NULL,
-  xwas_priors = .pi1_fun(z_vec = qnorm(pchisq(multi_simdat$chisq, df = chisq_dof,
-    lower.tail = FALSE)/2)),
+  xwas_priors = .pi1_fun(z_vec = qnorm(pchisq(df$chisq, df = chisq_dof, lower.tail =
+    FALSE)/2)),
   xwas_BFs = NULL,
   bf_type = "wakefield",
   K = c(1, 2, 4, 8, 16),
   glcp_aggreg = "max",
   em_algorithm = TRUE,
-  pi0 = 1 - .pi1_fun(z_vec = qnorm(pchisq(multi_simdat$chisq, df = chisq_dof, lower.tail
-    = FALSE)/2)),
+  pi0 = 1 - .pi1_fun(z_vec = qnorm(pchisq(df$chisq, df = chisq_dof, lower.tail =
+    FALSE)/2)),
   pi_init = c(pi0, rep(1 - pi0, 3)/3),
   return_model_posteriors = FALSE
 )

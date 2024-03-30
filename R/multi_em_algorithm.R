@@ -45,7 +45,7 @@
   df$BF_1 <- .wakefield_bf_z_ln(df$z_1)
   df$BF_2 <- .wakefield_bf_z_ln(df$z_2)
   df$BF_0 <- log(1)
-  bf_df <- pivot_longer(df,cols = c(BF_0,BF_1,BF_2,BF_12),
+  bf_df <- pivot_longer(df,cols = c("BF_0","BF_1","BF_2","BF_12"),
                         names_to = "BF_Type",
                         values_to = "BF")
 
