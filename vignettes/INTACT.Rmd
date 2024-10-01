@@ -99,7 +99,13 @@ transcriptome-wide association study (TWAS) scan and a colocalization analysis.
 The TWAS scan results must be in the form of gene-level z scores, and the 
 colocalization analysis results should be in the form of gene-level 
 colocalization probabilities. These are provided as output by most popular TWAS 
-and colocalization methods.
+and colocalization methods. Some TWAS methods that we utilize in our work are 
+[PTWAS](https://github.com/xqwen/ptwas), 
+[PrediXcan](https://github.com/hakyimlab/PrediXcan), and 
+[SMR](https://yanglab.westlake.edu.cn/software/smr/#Overview). We 
+recommend using [fastENLOC](https://github.com/xqwen/fastenloc) for 
+colocalization analysis, as it estimates enrichment of QTL among 
+GWAS hits and does not require specification of prior probabilities.
 
 Below, we include an example of how to use INTACT to integrate TWAS scan and 
 colocalization results for a simulated data set `simdat`. 
@@ -305,13 +311,63 @@ The first is a data frame with the GPPC, GPRP for expression (`GPRP_1`), and for
 protein (`GPRP_2`). The second is a numeric 3-vector containing conditional 
 prior parameter estimates (denoted $h_e,h_p,h_{e+p}$ in the methodology 
 reference). The third is a Boolean indicating whether the EM algorithm 
-converged. The a preview of the output is shown below:
+converged. 
+
+The a preview of the output is shown below:
 ```{r,echo=FALSE}
 print(head(rst[[1]]))
 print(rst[[2]])
 print(rst[[3]])
 ```
 
+The GPPC is a form of probabilistic evidence that a target gene 
+exerts a causal effect on the complex trait through at least one of the provided 
+gene product data types. The GPRPs provide probabilistic evidence to 
+determine the gene product(s) that exert a direct effect on the complex trait. 
+For example,in the output above, based on the Multi-INTACT output, it is very 
+likely that the gene ENSG00000038274 has a causal effect, and it is likely that
+encoded protein levels exert a direct effect. There is relatively little 
+evidence that the gene's expression levels exert a direct effect (although it 
+remains possible that gene expression exerts and effect that is mediated by 
+protein levels). The prior parameter estimates represent prior probabilistic 
+evidence of three possible underlying causal models (in which only expression, 
+only protein levels, or both expression and protein levels exert an effect, 
+respectively). Estimation of these prior parameters is required to estimate 
+GPRPs. We visualize the complete results below:
+
+```{r,echo=FALSE}
+library(ggplot2)
+
+output <- rst[[1]]
+
+print(ggplot(output, aes(x=GPPC)) +
+        geom_histogram(binwidth=0.01) +
+        ylab("Number of simulated genes") +
+        theme_bw() +
+        theme(text = element_text(size=10,face="bold"))) 
+
+gprp1 <- data.frame("GPRP" = output$GPRP_1,"Gene_product" = "Expression")
+gprp2 <- data.frame("GPRP" = output$GPRP_2,"Gene_product" = "Protein")
+gprp <- rbind.data.frame(gprp1,gprp2)
+
+print(ggplot(gprp,aes(x=GPRP,fill=Gene_product)) +
+        geom_histogram(binwidth=0.01)+
+        facet_wrap(~Gene_product) +
+        ylab("Number of simulated genes") + 
+        scale_fill_manual(values=c("blue","red")) +
+        theme_bw() +
+        theme(text = element_text(size=10,face="bold")))
+
+```
+
+From the histograms above, we can see that the probabilistic evidence of a 
+causal effect on the complex trait is low for most genes (top plot). In the
+bottom plot, we display the distribution of GPRPs. Recall that all genes have 2 
+GPRPs (`GPRP_1` for protein evidence, and `GPRP_2` for expression), so we
+visualize the distribution of each GPRP type in each panel. Additionally, we can 
+see that the distribution of probabilistic evidence of a direct protein effect 
+is similar to that of probabilistic evidence of a direct expression effect. 
+These observed qualities are by design, as this is simulated data.
 
 If you want to see the model posteriors for expression-only 
 (`posterior_1`), protein-only (`posterior_2`), and expression-and-protein 
