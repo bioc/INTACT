@@ -23,7 +23,8 @@ Imports:
     bdsmatrix,
     numDeriv,
     stats,
-    tidyr
+    tidyr,
+    ggplot2
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.3
